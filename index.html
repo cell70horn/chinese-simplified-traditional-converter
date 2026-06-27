@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>简繁转换器 — 在线简体↔繁体中文互转工具（OpenCC 词库）</title>
+<meta name="description" content="免费在线简繁转换器：基于开源 OpenCC 词库做简体↔繁体中文互转，词组优先、单字兜底，可一键复制。附简繁差异说明、一简对多繁问题与直接用输入法打繁体的方法。">
+<link rel="canonical" href="https://cell70horn.github.io/chinese-simplified-traditional-converter/">
+<meta property="og:title" content="简繁转换器 — 在线简体↔繁体中文互转">
+<meta property="og:description" content="基于 OpenCC 词库的简繁互转小工具，词组优先、单字兜底，开源可离线。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://cell70horn.github.io/chinese-simplified-traditional-converter/">
+<style>
+:root{--brand:#c0392b;--ink:#1d1f23;--mut:#6b7280;--line:#e7e7ea;--bg:#f6f6f8}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI","Microsoft YaHei",Arial,sans-serif;line-height:1.75;color:var(--ink);background:var(--bg)}
+.wrap{max-width:880px;margin:0 auto;padding:26px 18px 60px}
+header.site{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+header.site svg{flex:0 0 auto}
+h1{font-size:25px;margin:0}
+.sub{color:var(--mut);margin:4px 0 22px;font-size:14.5px}
+main{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px 22px}
+h2{font-size:19px;margin:30px 0 10px;padding-top:18px;border-top:1px solid var(--line)}
+h2:first-of-type{border-top:0;padding-top:0}
+h3{font-size:16px;margin:18px 0 6px}
+textarea{width:100%;min-height:140px;font-size:16px;padding:12px 14px;border:1px solid #cfcfd6;border-radius:12px;resize:vertical;font-family:inherit}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:12px 0}
+button{font-size:15px;padding:10px 18px;border:0;border-radius:10px;background:var(--brand);color:#fff;cursor:pointer}
+button.ghost{background:#fff;color:var(--brand);border:1px solid var(--brand)}
+button:disabled{opacity:.55;cursor:default}
+.stat{color:var(--mut);font-size:13px;margin-left:auto}
+.out{white-space:pre-wrap;word-break:break-word;min-height:80px;background:#fbfbfc;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:16px}
+table{border-collapse:collapse;width:100%;margin-top:8px;font-size:14px}
+th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:#fafafa}
+.faq dt{font-weight:600;margin-top:14px}
+.faq dd{margin:4px 0 0;color:#33363b}
+.note{background:#fff7f5;border:1px solid #f3d6cf;border-radius:10px;padding:10px 14px;font-size:14px;color:#5a3b35}
+a{color:var(--brand)}
+ul.src{font-size:14px;color:#33363b}
+ul.src li{margin:6px 0}
+footer{color:var(--mut);font-size:13px;text-align:center;margin-top:26px;line-height:1.7}
+.badge{display:inline-block;font-size:12px;color:var(--mut);border:1px solid var(--line);border-radius:999px;padding:2px 10px;margin-right:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="site">
+<svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true">
+<rect x="1" y="1" width="42" height="42" rx="11" fill="#fff" stroke="#c0392b" stroke-width="2"/>
+<text x="11" y="20" font-size="13" font-family="serif" fill="#c0392b">简</text>
+<text x="24" y="34" font-size="13" font-family="serif" fill="#1d1f23">繁</text>
+<path d="M9 26 L20 26 M16 23 L20 26 L16 29" stroke="#c0392b" stroke-width="1.6" fill="none"/>
+<path d="M35 18 L24 18 M28 15 L24 18 L28 21" stroke="#1d1f23" stroke-width="1.6" fill="none"/>
+</svg>
+<div>
+<h1>简繁转换器</h1>
+<div class="sub">在线简体 ↔ 繁体中文互转 · 词组优先、单字兜底 · 数据来自开源 OpenCC 词库</div>
+</div>
+</header>
+
+<main>
+<p>把文字粘贴到下面，点按钮即可在 <b>简体中文</b> 与 <b>繁体中文</b> 之间转换。转换在你的浏览器本地完成，不上传服务器；词库基于开源项目
+<a href="https://github.com/BYVoid/OpenCC" rel="noopener" target="_blank">OpenCC</a>（Apache-2.0）。</p>
+
+<textarea id="in" placeholder="在此输入或粘贴中文文本……例如：头发、里面、皇后、面条、松树、几个、干净"></textarea>
+<div class="row">
+<button id="s2t">简体 → 繁体</button>
+<button id="t2s" class="ghost">繁体 → 简体</button>
+<button id="copy" class="ghost" disabled>复制结果</button>
+<span class="stat" id="stat">字库加载中…</span>
+</div>
+<div class="out" id="out" aria-live="polite"></div>
+
+<h2>这个工具是怎么转换的</h2>
+<p>简繁转换不是简单“一个简体字换一个繁体字”。难点在于 <b>一简对多繁</b>：同一个简体字，在不同词里对应不同繁体。例如：</p>
+<table>
+<tr><th>简体</th><th>按词语正确的繁体</th><th>只换单字常见的错误</th></tr>
+<tr><td>头发</td><td>頭<b>髮</b></td><td>頭發 ✗</td></tr>
+<tr><td>发现</td><td><b>發</b>現</td><td>髮現 ✗</td></tr>
+<tr><td>皇后</td><td>皇<b>后</b></td><td>皇後 ✗</td></tr>
+<tr><td>以后</td><td>以<b>後</b></td><td>以后（漏转）✗</td></tr>
+<tr><td>面条</td><td><b>麵</b>條</td><td>面條 ✗</td></tr>
+</table>
+<p>所以本工具采用和 OpenCC 一致的思路：<b>先按词组做最长匹配</b>（用 OpenCC 的 <code>STPhrases</code> 词组表，约 4.9 万条），<b>词组里没有的再逐字转换</b>（用 <code>STCharacters</code> 单字表）。这样“头发/发现”“皇后/以后”这类才能按词义给出正确的繁体。繁→简方向用 <code>TSCharacters</code> 单字表（繁转简的歧义远少于简转繁）。</p>
+
+<div class="note">
+诚实说明：逐字与词组表无法覆盖所有语境，专有名词、文言、网络新词仍可能需要人工校对；本工具做的是“先打简体再批量转换”。如果你想<b>打字时就直接输出繁体</b>（而不是事后转换），更省事的办法是用输入法自带的简繁切换——例如<a href="https://sogouinputmethod.com/traditional/">搜狗输入法的繁体、注音与粤语设置</a>，电脑版按 <kbd>Ctrl+Shift+F</kbd> 即可在简体/繁体输出间即时切换，切到繁体后照常用拼音打字就直接出繁体字。</div>
+
+<h2>常见问题</h2>
+<dl class="faq">
+<dt>转换结果一定准确吗？</dt>
+<dd>常用文本准确度很高，因为先用近 5 万条词组做整词匹配。但中文简繁本身存在语境歧义（如“干”对应 乾/幹/干），少数情况仍需人工核对，正式出版建议再校一遍。</dd>
+<dt>“一简对多繁”到底怎么处理？</dt>
+<dd>靠词组表。比如“头发”整词命中 <code>STPhrases</code> 得到“頭髮”，而“发现”命中得到“發現”；只有当一个字不在任何词组里时，才退回单字表取最常用的对应字。</dd>
+<dt>词库数据从哪来、能商用吗？</dt>
+<dd>转换词库直接来自开源项目 OpenCC（Apache-2.0 许可），本页源码以 MIT 许可开放，二者均可商用，使用时请保留各自版权与许可声明。</dd>
+<dt>会上传我的文字吗？</dt>
+<dd>不会。词库随页面加载到浏览器，转换在本地 JavaScript 里完成，文本不发往任何服务器，可断网使用。</dd>
+<dt>和输入法自带的简繁切换有什么区别？</dt>
+<dd>本工具适合把已有的简体文本批量转成繁体；如果是<b>从头打字</b>，直接在输入法里开简繁切换更顺手，参见上面搜狗输入法的繁体设置说明，打字即出繁体，无需再转换。</dd>
+<dt>支持港台不同用字吗？</dt>
+<dd>本页用的是 OpenCC 的通用简→繁基础表（偏“繁体标准字”）。台湾、香港用字习惯（如 裏/裡、著/着）略有差异，OpenCC 另有 <code>s2tw</code>、<code>s2hk</code> 方案可做地区化，本页未内置地区变体，如需严格地区用字请以当地标准为准。</dd>
+</dl>
+
+<h2>参考与数据来源</h2>
+<ul class="src">
+<li>OpenCC（开放中文转换）词库与转换方案：<a href="https://github.com/BYVoid/OpenCC" rel="noopener" target="_blank">github.com/BYVoid/OpenCC</a>（本工具的 STPhrases / STCharacters / TSCharacters 数据来源，Apache-2.0）</li>
+<li>Unicode Han Database（Unihan）简繁变体字段 kSimplifiedVariant / kTraditionalVariant：<a href="https://www.unicode.org/charts/unihan.html" rel="noopener" target="_blank">unicode.org/charts/unihan.html</a></li>
+<li>萌典（依据中華民國教育部辭典）繁体字形与释义参考：<a href="https://www.moedict.tw/" rel="noopener" target="_blank">moedict.tw</a></li>
+<li>直接用输入法打繁体（简繁切换/注音/粤语）：<a href="https://sogouinputmethod.com/traditional/">搜狗输入法 繁体注音粤语设置</a></li>
+</ul>
+</main>
+
+<footer>
+<span class="badge">开源 · MIT</span><span class="badge">词库 · OpenCC Apache-2.0</span><br>
+简繁转换器 · 纯前端本地转换，无追踪 · 源码与 NOTICE 见仓库
+</footer>
+</div>
+<script src="./opencc-data.js" charset="utf-8"></script>
+<script src="./app.js" charset="utf-8"></script>
+</body>
+</html>

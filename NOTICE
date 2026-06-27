@@ -1,0 +1,19 @@
+This product bundles dictionary data from OpenCC (Open Chinese Convert).
+
+  OpenCC — https://github.com/BYVoid/OpenCC
+  Copyright Carbo Kuo (BYVoid) and the OpenCC contributors.
+  Licensed under the Apache License, Version 2.0.
+
+The bundled data (in opencc-data.js) is derived from the following OpenCC
+dictionary files, used unmodified except for packaging into a JavaScript file:
+
+  - data/dictionary/STPhrases.txt
+  - data/dictionary/STCharacters.txt
+  - data/dictionary/TSCharacters.txt
+
+You may obtain a copy of the Apache License 2.0 at:
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+The source code of this project (index.html, app.js) is licensed separately
+under the MIT License; see the LICENSE file.
